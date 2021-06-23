@@ -1,0 +1,39 @@
+plugins {
+  id 'java'
+}
+
+repositories {
+  mavenCentral()
+}
+
+// for use with the Gradle Java Plugin
+sourceSets {
+  main {
+    java {
+      srcDirs = ['src/']
+    }
+    resources {
+      srcDirs = ['src/resources/']
+    }
+  }
+  test {
+    java {
+      srcDirs = ['tst/']
+    }
+    resources {
+      srcDirs = ['tst/resources/']
+    }
+  }
+}
+
+dependencies {
+  implementation 'org.junit.jupiter:junit-jupiter:5.7.2'
+  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2'
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
+  implementation project(':LibrariesAndUtilities:DeliveringOnOurPromise_Data')
+}
+
+test {
+  useJUnitPlatform()
+}
+

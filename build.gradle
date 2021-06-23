@@ -1,0 +1,710 @@
+//FIXME: Note that the source code for TCT and IRT tests should not part of the distributive package. See more:
+//  Several shortcuts were made in getting the test done:
+//  The test tasks in the file contain scores that could be changed by the learners affecting their final score. We need a way in CodeGrade to use our version of the code and not the version uploaded by learners.
+//  TestLog and TestLogging should be procedurally done inside of copied for each task
+//  The code for these tests should be moved into a jar file
+
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
+
+plugins {
+    id 'java'
+    id 'checkstyle'
+    id 'jacoco'
+    id 'com.github.spotbugs' version '4.7.1'
+    id 'com.adarshr.test-logger' version '3.0.0'
+    id 'com.github.johnrengelman.shadow' version '7.0.0'
+}
+
+repositories {
+    mavenCentral()
+}
+
+checkstyle {
+//    sourceSets = [sourceSets.main, sourceSets.test]
+    sourceSets = [sourceSets.main]
+    configFile = file("$rootDir/LibrariesAndUtilities/ATACheckstyle/configuration/checkstyle/checkstyle.xml")
+    configProperties.put('checkstyle.suppression.filter', "$rootDir/LibrariesAndUtilities/ATACheckstyle/configuration/checkstyle/suppressions.xml")
+    ignoreFailures = true
+}
+
+tasks.withType(Checkstyle) {
+    reports {
+        xml.enabled false
+        html.enabled true
+    }
+}
+
+check.dependsOn jacocoTestCoverageVerification
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.80
+            }
+        }
+    }
+}
+
+// for use with the Gradle Java Plugin
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/']
+        }
+        resources {
+            srcDirs = ['src/resources/']
+        }
+    }
+    test {
+        java {
+            srcDirs = ['tst/']
+        }
+        resources {
+            srcDirs = ['tst/resources/']
+        }
+    }
+}
+
+spotbugs {
+    spotbugsTest.enabled = false
+    ignoreFailures = true
+}
+
+spotbugsMain {
+    reports {
+        html {
+            enabled = true
+        }
+    }
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
+    testImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.7.2'
+
+    implementation 'com.google.guava:guava:30.1.1-jre'
+
+    testImplementation group: 'com.github.spotbugs', name: 'spotbugs-annotations', version: '4.2.3'
+
+    testImplementation group: 'org.testng', name: 'testng', version: '7.4.0'
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: '3.10.0'
+    testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.19.0'
+
+    implementation group: 'org.reflections', name: 'reflections', version: '0.9.12'
+    testImplementation group: 'org.reflections', name: 'reflections', version: '0.9.12'
+
+    implementation files("$rootDir/LibrariesAndUtilities/ATAResources.jar")
+    testImplementation files("$rootDir/LibrariesAndUtilities/ATAResources.jar")
+
+//    implementation project('LibrariesAndUtilities:LessonPlanResources')
+    implementation project('LibrariesAndUtilities:DeliveringOnOurPromise_Data')
+    implementation project('LibrariesAndUtilities:DeliveryPromiseService')
+    implementation project('LibrariesAndUtilities:OrderManipulationAuthority')
+    implementation project('LibrariesAndUtilities:OrderUtils')
+    implementation project('LibrariesAndUtilities:OrderFulfillmentService')
+}
+
+test {
+    useJUnitPlatform()
+
+    testlogger {
+        theme 'plain'
+        logLevel 'quiet'
+    }
+
+    testLogging {
+        // set options for log level LIFECYCLE
+        events TestLogEvent.FAILED,
+                TestLogEvent.PASSED,
+                TestLogEvent.SKIPPED,
+                TestLogEvent.STANDARD_OUT
+        exceptionFormat TestExceptionFormat.FULL
+        showExceptions true
+        showCauses true
+        showStackTraces true
+
+        // set options for log level DEBUG and INFO
+        debug {
+            events TestLogEvent.STARTED,
+                    TestLogEvent.FAILED,
+                    TestLogEvent.PASSED,
+                    TestLogEvent.SKIPPED,
+                    TestLogEvent.STANDARD_ERROR,
+                    TestLogEvent.STANDARD_OUT
+            exceptionFormat TestExceptionFormat.SHORT
+        }
+        info.events = debug.events
+        info.exceptionFormat = debug.exceptionFormat
+
+        afterSuite { desc, result ->
+            if (!desc.parent) { // will match the outermost suite
+                def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
+                def startItem = '|  ', endItem = '  |'
+                def repeatLength = startItem.length() + output.length() + endItem.length()
+                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
+
+                def scoringPercentage = 10 - result.failedTestCount
+                if (scoringPercentage < 0) {
+                    scoringPercentage = 0.0;
+                }
+                scoringPercentage = scoringPercentage / 10
+                def scoringPercentageAsString = String.format("%.2f", scoringPercentage)
+                println("Exit Result for Scoring: " + scoringPercentageAsString)
+            }
+        }
+    }
+}
+
+task IRT(type: Test) {
+    useTestNG() {
+        useDefaultListeners = true
+        suites 'tst/testngIRT.xml'
+    }
+    testlogger {
+        theme 'plain'
+        logLevel 'quiet'
+    }
+
+    testLogging {
+        // set options for log level LIFECYCLE
+        events TestLogEvent.FAILED,
+                TestLogEvent.PASSED,
+                TestLogEvent.SKIPPED,
+                TestLogEvent.STANDARD_OUT
+        exceptionFormat TestExceptionFormat.FULL
+        showExceptions true
+        showCauses true
+        showStackTraces true
+
+        // set options for log level DEBUG and INFO
+        debug {
+            events TestLogEvent.STARTED,
+                    TestLogEvent.FAILED,
+                    TestLogEvent.PASSED,
+                    TestLogEvent.SKIPPED,
+                    TestLogEvent.STANDARD_ERROR,
+                    TestLogEvent.STANDARD_OUT
+            exceptionFormat TestExceptionFormat.FULL
+        }
+        info.events = debug.events
+        info.exceptionFormat = debug.exceptionFormat
+
+        afterSuite { desc, result ->
+            if (!desc.parent) { // will match the outermost suite
+                def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
+                def startItem = '|  ', endItem = '  |'
+                def repeatLength = startItem.length() + output.length() + endItem.length()
+                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
+
+                def scoringPercentage = 10 - result.failedTestCount
+                if (scoringPercentage < 0) {
+                    scoringPercentage = 0.0;
+                }
+
+                scoringPercentage = scoringPercentage / 10
+                def scoringPercentageAsString = String.format("%.2f", scoringPercentage)
+                println("Exit Result for Scoring: " + scoringPercentageAsString)
+            }
+        }
+    }
+}
+
+task TCT(type: Test) {
+    useTestNG() {
+        useDefaultListeners = true
+        suites 'tst/testngTCT.xml'
+    }
+    testlogger {
+        theme 'plain'
+        logLevel 'quiet'
+    }
+
+    testLogging {
+        // set options for log level LIFECYCLE
+        events TestLogEvent.FAILED,
+                TestLogEvent.PASSED,
+                TestLogEvent.SKIPPED,
+                TestLogEvent.STANDARD_OUT
+        exceptionFormat TestExceptionFormat.FULL
+        showExceptions true
+        showCauses true
+        showStackTraces true
+
+        // set options for log level DEBUG and INFO
+        debug {
+            events TestLogEvent.STARTED,
+                    TestLogEvent.FAILED,
+                    TestLogEvent.PASSED,
+                    TestLogEvent.SKIPPED,
+                    TestLogEvent.STANDARD_ERROR,
+                    TestLogEvent.STANDARD_OUT
+            exceptionFormat TestExceptionFormat.FULL
+        }
+        info.events = debug.events
+        info.exceptionFormat = debug.exceptionFormat
+
+        afterSuite { desc, result ->
+            if (!desc.parent) { // will match the outermost suite
+                def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
+                def startItem = '|  ', endItem = '  |'
+                def repeatLength = startItem.length() + output.length() + endItem.length()
+                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
+
+                def scoringPercentage = 31 - result.failedTestCount
+                if (scoringPercentage < 0) {
+                    scoringPercentage = 0.0;
+                }
+
+                scoringPercentage = scoringPercentage / 31
+                def scoringPercentageAsString = String.format("%.2f", scoringPercentage)
+                println("Exit Result for Scoring: " + scoringPercentageAsString)
+            }
+        }
+    }
+}
+
+task PreparednessTaskTwoTests(type: Test) {
+    useTestNG() {
+        useDefaultListeners = true
+        suites 'tst/testngPreparednessTaskTwoTests.xml'
+    }
+    testlogger {
+        theme 'plain'
+        logLevel 'quiet'
+    }
+
+    testLogging {
+        // set options for log level LIFECYCLE
+        events TestLogEvent.FAILED,
+                TestLogEvent.PASSED,
+                TestLogEvent.SKIPPED,
+                TestLogEvent.STANDARD_OUT
+        exceptionFormat TestExceptionFormat.FULL
+        showExceptions true
+        showCauses true
+        showStackTraces true
+
+        // set options for log level DEBUG and INFO
+        debug {
+            events TestLogEvent.STARTED,
+                    TestLogEvent.FAILED,
+                    TestLogEvent.PASSED,
+                    TestLogEvent.SKIPPED,
+                    TestLogEvent.STANDARD_ERROR,
+                    TestLogEvent.STANDARD_OUT
+            exceptionFormat TestExceptionFormat.FULL
+        }
+        info.events = debug.events
+        info.exceptionFormat = debug.exceptionFormat
+
+        afterSuite { desc, result ->
+            if (!desc.parent) { // will match the outermost suite
+                def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
+                def startItem = '|  ', endItem = '  |'
+                def repeatLength = startItem.length() + output.length() + endItem.length()
+                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
+
+                def scoringPercentage = 1 - result.failedTestCount
+                if (scoringPercentage < 0) {
+                    scoringPercentage = 0.0;
+                }
+
+                scoringPercentage = scoringPercentage / 1
+                def scoringPercentageAsString = String.format("%.2f", scoringPercentage)
+                println("Exit Result for Scoring: " + scoringPercentageAsString)
+            }
+        }
+    }
+}
+
+task PreparednessTaskThreeTests(type: Test) {
+    useTestNG() {
+        useDefaultListeners = true
+        suites 'tst/testngPreparednessTaskThreeTests.xml'
+    }
+    testlogger {
+        theme 'plain'
+        logLevel 'quiet'
+    }
+
+    testLogging {
+        // set options for log level LIFECYCLE
+        events TestLogEvent.FAILED,
+                TestLogEvent.PASSED,
+                TestLogEvent.SKIPPED,
+                TestLogEvent.STANDARD_OUT
+        exceptionFormat TestExceptionFormat.FULL
+        showExceptions true
+        showCauses true
+        showStackTraces true
+
+        // set options for log level DEBUG and INFO
+        debug {
+            events TestLogEvent.STARTED,
+                    TestLogEvent.FAILED,
+                    TestLogEvent.PASSED,
+                    TestLogEvent.SKIPPED,
+                    TestLogEvent.STANDARD_ERROR,
+                    TestLogEvent.STANDARD_OUT
+            exceptionFormat TestExceptionFormat.FULL
+        }
+        info.events = debug.events
+        info.exceptionFormat = debug.exceptionFormat
+
+        afterSuite { desc, result ->
+            if (!desc.parent) { // will match the outermost suite
+                def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
+                def startItem = '|  ', endItem = '  |'
+                def repeatLength = startItem.length() + output.length() + endItem.length()
+                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
+
+                def scoringPercentage = 1 - result.failedTestCount
+                if (scoringPercentage < 0) {
+                    scoringPercentage = 0.0;
+                }
+
+                scoringPercentage = scoringPercentage / 1
+                def scoringPercentageAsString = String.format("%.2f", scoringPercentage)
+                println("Exit Result for Scoring: " + scoringPercentageAsString)
+            }
+        }
+    }
+}
+
+task PreparednessTaskFourTests(type: Test) {
+    useTestNG() {
+        useDefaultListeners = true
+        suites 'tst/testngPreparednessTaskFourTests.xml'
+    }
+    testlogger {
+        theme 'plain'
+        logLevel 'quiet'
+    }
+
+    testLogging {
+        // set options for log level LIFECYCLE
+        events TestLogEvent.FAILED,
+                TestLogEvent.PASSED,
+                TestLogEvent.SKIPPED,
+                TestLogEvent.STANDARD_OUT
+        exceptionFormat TestExceptionFormat.FULL
+        showExceptions true
+        showCauses true
+        showStackTraces true
+
+        // set options for log level DEBUG and INFO
+        debug {
+            events TestLogEvent.STARTED,
+                    TestLogEvent.FAILED,
+                    TestLogEvent.PASSED,
+                    TestLogEvent.SKIPPED,
+                    TestLogEvent.STANDARD_ERROR,
+                    TestLogEvent.STANDARD_OUT
+            exceptionFormat TestExceptionFormat.FULL
+        }
+        info.events = debug.events
+        info.exceptionFormat = debug.exceptionFormat
+
+        afterSuite { desc, result ->
+            if (!desc.parent) { // will match the outermost suite
+                def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
+                def startItem = '|  ', endItem = '  |'
+                def repeatLength = startItem.length() + output.length() + endItem.length()
+                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
+
+                def scoringPercentage = 23 - result.failedTestCount
+                if (scoringPercentage < 0) {
+                    scoringPercentage = 0.0;
+                }
+
+                scoringPercentage = scoringPercentage / 23
+                def scoringPercentageAsString = String.format("%.2f", scoringPercentage)
+                println("Exit Result for Scoring: " + scoringPercentageAsString)
+            }
+        }
+    }
+}
+
+task MasteryTaskOneTests(type: Test) {
+    useTestNG() {
+        useDefaultListeners = true
+        suites 'tst/testngMasteryTaskOneTests.xml'
+    }
+    testlogger {
+        theme 'plain'
+        logLevel 'quiet'
+    }
+
+    testLogging {
+        // set options for log level LIFECYCLE
+        events TestLogEvent.FAILED,
+                TestLogEvent.PASSED,
+                TestLogEvent.SKIPPED,
+                TestLogEvent.STANDARD_OUT
+        exceptionFormat TestExceptionFormat.FULL
+        showExceptions true
+        showCauses true
+        showStackTraces true
+
+        // set options for log level DEBUG and INFO
+        debug {
+            events TestLogEvent.STARTED,
+                    TestLogEvent.FAILED,
+                    TestLogEvent.PASSED,
+                    TestLogEvent.SKIPPED,
+                    TestLogEvent.STANDARD_ERROR,
+                    TestLogEvent.STANDARD_OUT
+            exceptionFormat TestExceptionFormat.FULL
+        }
+        info.events = debug.events
+        info.exceptionFormat = debug.exceptionFormat
+
+        afterSuite { desc, result ->
+            if (!desc.parent) { // will match the outermost suite
+                def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
+                def startItem = '|  ', endItem = '  |'
+                def repeatLength = startItem.length() + output.length() + endItem.length()
+                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
+
+                def scoringPercentage = 1 - result.failedTestCount
+                if (scoringPercentage < 0) {
+                    scoringPercentage = 0.0;
+                }
+
+                scoringPercentage = scoringPercentage / 1
+                def scoringPercentageAsString = String.format("%.2f", scoringPercentage)
+                println("Exit Result for Scoring: " + scoringPercentageAsString)
+            }
+        }
+    }
+}
+
+task MasteryTaskTwoTests(type: Test) {
+    useTestNG() {
+        useDefaultListeners = true
+        suites 'tst/testngMasteryTaskTwoTests.xml'
+    }
+    testlogger {
+        theme 'plain'
+        logLevel 'quiet'
+    }
+
+    testLogging {
+        // set options for log level LIFECYCLE
+        events TestLogEvent.FAILED,
+                TestLogEvent.PASSED,
+                TestLogEvent.SKIPPED,
+                TestLogEvent.STANDARD_OUT
+        exceptionFormat TestExceptionFormat.FULL
+        showExceptions true
+        showCauses true
+        showStackTraces true
+
+        // set options for log level DEBUG and INFO
+        debug {
+            events TestLogEvent.STARTED,
+                    TestLogEvent.FAILED,
+                    TestLogEvent.PASSED,
+                    TestLogEvent.SKIPPED,
+                    TestLogEvent.STANDARD_ERROR,
+                    TestLogEvent.STANDARD_OUT
+            exceptionFormat TestExceptionFormat.FULL
+        }
+        info.events = debug.events
+        info.exceptionFormat = debug.exceptionFormat
+
+        afterSuite { desc, result ->
+            if (!desc.parent) { // will match the outermost suite
+                def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
+                def startItem = '|  ', endItem = '  |'
+                def repeatLength = startItem.length() + output.length() + endItem.length()
+                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
+
+                def scoringPercentage = 1 - result.failedTestCount
+                if (scoringPercentage < 0) {
+                    scoringPercentage = 0.0;
+                }
+
+                scoringPercentage = scoringPercentage / 1
+                def scoringPercentageAsString = String.format("%.2f", scoringPercentage)
+                println("Exit Result for Scoring: " + scoringPercentageAsString)
+            }
+        }
+    }
+}
+
+
+task MasteryTaskThreeTests(type: Test) {
+    useTestNG() {
+        useDefaultListeners = true
+        suites 'tst/testngMasteryTaskThreeTests.xml'
+    }
+    testlogger {
+        theme 'plain'
+        logLevel 'quiet'
+    }
+
+    testLogging {
+        // set options for log level LIFECYCLE
+        events TestLogEvent.FAILED,
+                TestLogEvent.PASSED,
+                TestLogEvent.SKIPPED,
+                TestLogEvent.STANDARD_OUT
+        exceptionFormat TestExceptionFormat.FULL
+        showExceptions true
+        showCauses true
+        showStackTraces true
+
+        // set options for log level DEBUG and INFO
+        debug {
+            events TestLogEvent.STARTED,
+                    TestLogEvent.FAILED,
+                    TestLogEvent.PASSED,
+                    TestLogEvent.SKIPPED,
+                    TestLogEvent.STANDARD_ERROR,
+                    TestLogEvent.STANDARD_OUT
+            exceptionFormat TestExceptionFormat.FULL
+        }
+        info.events = debug.events
+        info.exceptionFormat = debug.exceptionFormat
+
+        afterSuite { desc, result ->
+            if (!desc.parent) { // will match the outermost suite
+                def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
+                def startItem = '|  ', endItem = '  |'
+                def repeatLength = startItem.length() + output.length() + endItem.length()
+                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
+
+                def scoringPercentage = 4 - result.failedTestCount
+                if (scoringPercentage < 0) {
+                    scoringPercentage = 0.0;
+                }
+
+                scoringPercentage = scoringPercentage / 4
+                def scoringPercentageAsString = String.format("%.2f", scoringPercentage)
+                println("Exit Result for Scoring: " + scoringPercentageAsString)
+            }
+        }
+    }
+}
+
+task MasteryTaskFourTests(type: Test) {
+    useTestNG() {
+        useDefaultListeners = true
+        suites 'tst/testngMasteryTaskFourTests.xml'
+    }
+    testlogger {
+        theme 'plain'
+        logLevel 'quiet'
+    }
+
+    testLogging {
+        // set options for log level LIFECYCLE
+        events TestLogEvent.FAILED,
+                TestLogEvent.PASSED,
+                TestLogEvent.SKIPPED,
+                TestLogEvent.STANDARD_OUT
+        exceptionFormat TestExceptionFormat.FULL
+        showExceptions true
+        showCauses true
+        showStackTraces true
+
+        // set options for log level DEBUG and INFO
+        debug {
+            events TestLogEvent.STARTED,
+                    TestLogEvent.FAILED,
+                    TestLogEvent.PASSED,
+                    TestLogEvent.SKIPPED,
+                    TestLogEvent.STANDARD_ERROR,
+                    TestLogEvent.STANDARD_OUT
+            exceptionFormat TestExceptionFormat.FULL
+        }
+        info.events = debug.events
+        info.exceptionFormat = debug.exceptionFormat
+
+        afterSuite { desc, result ->
+            if (!desc.parent) { // will match the outermost suite
+                def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
+                def startItem = '|  ', endItem = '  |'
+                def repeatLength = startItem.length() + output.length() + endItem.length()
+                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
+
+                def scoringPercentage = 5 - result.failedTestCount
+                if (scoringPercentage < 0) {
+                    scoringPercentage = 0.0;
+                }
+
+                scoringPercentage = scoringPercentage / 5
+                def scoringPercentageAsString = String.format("%.2f", scoringPercentage)
+                println("Exit Result for Scoring: " + scoringPercentageAsString)
+            }
+        }
+    }
+}
+
+task MasteryTaskFiveTests(type: Test) {
+    useTestNG() {
+        useDefaultListeners = true
+        suites 'tst/testngMasteryTaskFiveTests.xml'
+    }
+    testlogger {
+        theme 'plain'
+        logLevel 'quiet'
+    }
+
+    testLogging {
+        // set options for log level LIFECYCLE
+        events TestLogEvent.FAILED,
+                TestLogEvent.PASSED,
+                TestLogEvent.SKIPPED,
+                TestLogEvent.STANDARD_OUT
+        exceptionFormat TestExceptionFormat.FULL
+        showExceptions true
+        showCauses true
+        showStackTraces true
+
+        // set options for log level DEBUG and INFO
+        debug {
+            events TestLogEvent.STARTED,
+                    TestLogEvent.FAILED,
+                    TestLogEvent.PASSED,
+                    TestLogEvent.SKIPPED,
+                    TestLogEvent.STANDARD_ERROR,
+                    TestLogEvent.STANDARD_OUT
+            exceptionFormat TestExceptionFormat.FULL
+        }
+        info.events = debug.events
+        info.exceptionFormat = debug.exceptionFormat
+
+        afterSuite { desc, result ->
+            if (!desc.parent) { // will match the outermost suite
+                def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
+                def startItem = '|  ', endItem = '  |'
+                def repeatLength = startItem.length() + output.length() + endItem.length()
+                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
+
+                def scoringPercentage = 10 - result.failedTestCount
+                if (scoringPercentage < 0) {
+                    scoringPercentage = 0.0;
+                }
+
+                scoringPercentage = scoringPercentage / 10
+                def scoringPercentageAsString = String.format("%.2f", scoringPercentage)
+                println("Exit Result for Scoring: " + scoringPercentageAsString)
+            }
+        }
+    }
+}
+
+project.configurations.implementation.setCanBeResolved(true)
+jar {
+    manifest {
+        attributes(
+                "Main-Class": "com.amazon.ata.deliveringonourpromise.Shell",
+                "Class-Path": configurations.implementation.collect { it.name }.join(' ')
+        )
+    }
+    dependsOn('dependencies')
+}

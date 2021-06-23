@@ -1,0 +1,11 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<suite name="ServiceIntegrationTestsSuite" verbose="2" parallel="false" thread-count="1">
+    <test name="IntegrationRegressionTests">
+        <packages>
+            <package name="com.amazon.ata.deliveringonourpromise.*" >
+                <exclude name="com.amazon.ata.deliveringonourpromise.TCTtest.*"></exclude>
+            </package>
+
+        </packages>
+    </test>
+</suite>

@@ -1,0 +1,8 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<suite name="ServiceTCTTestsSuite" verbose="2" parallel="false" thread-count="1">
+    <test name="MasteryTaskThreeTests">
+        <packages>
+            <package name="com.amazon.ata.deliveringonourpromise.TCTtest.taskcompletion.mastery.task3.*" />
+        </packages>
+    </test>
+</suite>

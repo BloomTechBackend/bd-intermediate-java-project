@@ -1,0 +1,5 @@
+# NOTE: if working on this package in IntelliJ, you may need to mark the src/test/resources
+# directory as "Test Resources root"
+#
+# this mocking engine allows mocking/stubbing/spying final classes/methods:
+mock-maker-inline
