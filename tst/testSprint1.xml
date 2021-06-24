@@ -7,7 +7,6 @@
             <package name="com.amazon.ata.deliveringonourpromise.TCTtest.taskcompletion.preparedness.task4.*" />
             <package name="com.amazon.ata.deliveringonourpromise.TCTtest.taskcompletion.mastery.task1.*" />
             <package name="com.amazon.ata.deliveringonourpromise.TCTtest.taskcompletion.mastery.task2.*" />
-            <package name="com.amazon.ata.deliveringonourpromise.TCTtest.taskcompletion.mastery.task3.*" />
         </packages>
     </test>
 </suite>
