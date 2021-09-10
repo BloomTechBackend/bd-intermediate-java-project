@@ -3,9 +3,6 @@
 //  The test tasks in the file contain scores that could be changed by the learners affecting their final score. We need a way in CodeGrade to use our version of the code and not the version uploaded by learners.
 //  TestLog and TestLogging should be procedurally done inside of copied for each task
 //  The code for these tests should be moved into a jar file
-//FIXME:  jacoco is not reporting as I would like. Without any tests other than the defaults it is reporting 96% test
-//  coverage. I would like for Mastery Task 3 MileStone 2 to do a better job of reporting code coverage but out of time
-//  to investigate.
 
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
@@ -121,6 +118,23 @@ dependencies {
     implementation project('LibrariesAndUtilities:OrderFulfillmentService')
 }
 
+def printResults(desc, result, maxScore) {
+    if (!desc.parent) { // will match the outermost suite
+        def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
+        def startItem = '|  ', endItem = '  |'
+        def repeatLength = startItem.length() + output.length() + endItem.length()
+        println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
+
+        def scoringPercentage = maxScore - result.failedTestCount
+        if (scoringPercentage < 0) {
+            scoringPercentage = 0.0;
+        }
+        scoringPercentage = scoringPercentage / maxScore
+        def scoringPercentageAsString = String.format("%.2f", scoringPercentage)
+        println("Exit Result for Scoring: " + scoringPercentageAsString)
+    }
+}
+
 test {
     finalizedBy jacocoTestReport
 
@@ -156,20 +170,7 @@ test {
         info.exceptionFormat = debug.exceptionFormat
 
         afterSuite { desc, result ->
-            if (!desc.parent) { // will match the outermost suite
-                def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
-                def startItem = '|  ', endItem = '  |'
-                def repeatLength = startItem.length() + output.length() + endItem.length()
-                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
-
-                def scoringPercentage = 10 - result.failedTestCount
-                if (scoringPercentage < 0) {
-                    scoringPercentage = 0.0;
-                }
-                scoringPercentage = scoringPercentage / 10
-                def scoringPercentageAsString = String.format("%.2f", scoringPercentage)
-                println("Exit Result for Scoring: " + scoringPercentageAsString)
-            }
+            printResults(desc, result, 10)
         }
     }
 }
@@ -209,21 +210,7 @@ task IRT(type: Test) {
         info.exceptionFormat = debug.exceptionFormat
 
         afterSuite { desc, result ->
-            if (!desc.parent) { // will match the outermost suite
-                def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
-                def startItem = '|  ', endItem = '  |'
-                def repeatLength = startItem.length() + output.length() + endItem.length()
-                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
-
-                def scoringPercentage = 10 - result.failedTestCount
-                if (scoringPercentage < 0) {
-                    scoringPercentage = 0.0;
-                }
-
-                scoringPercentage = scoringPercentage / 10
-                def scoringPercentageAsString = String.format("%.2f", scoringPercentage)
-                println("Exit Result for Scoring: " + scoringPercentageAsString)
-            }
+            printResults(desc, result, 10)
         }
     }
 }
@@ -263,21 +250,7 @@ task TCT(type: Test) {
         info.exceptionFormat = debug.exceptionFormat
 
         afterSuite { desc, result ->
-            if (!desc.parent) { // will match the outermost suite
-                def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
-                def startItem = '|  ', endItem = '  |'
-                def repeatLength = startItem.length() + output.length() + endItem.length()
-                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
-
-                def scoringPercentage = 31 - result.failedTestCount
-                if (scoringPercentage < 0) {
-                    scoringPercentage = 0.0;
-                }
-
-                scoringPercentage = scoringPercentage / 31
-                def scoringPercentageAsString = String.format("%.2f", scoringPercentage)
-                println("Exit Result for Scoring: " + scoringPercentageAsString)
-            }
+            printResults(desc, result, 31)
         }
     }
 }
@@ -317,21 +290,7 @@ task PreparednessTaskTwoTests(type: Test) {
         info.exceptionFormat = debug.exceptionFormat
 
         afterSuite { desc, result ->
-            if (!desc.parent) { // will match the outermost suite
-                def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
-                def startItem = '|  ', endItem = '  |'
-                def repeatLength = startItem.length() + output.length() + endItem.length()
-                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
-
-                def scoringPercentage = 1 - result.failedTestCount
-                if (scoringPercentage < 0) {
-                    scoringPercentage = 0.0;
-                }
-
-                scoringPercentage = scoringPercentage / 1
-                def scoringPercentageAsString = String.format("%.2f", scoringPercentage)
-                println("Exit Result for Scoring: " + scoringPercentageAsString)
-            }
+            printResults(desc, result, 1)
         }
     }
 }
@@ -371,21 +330,7 @@ task PreparednessTaskThreeTests(type: Test) {
         info.exceptionFormat = debug.exceptionFormat
 
         afterSuite { desc, result ->
-            if (!desc.parent) { // will match the outermost suite
-                def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
-                def startItem = '|  ', endItem = '  |'
-                def repeatLength = startItem.length() + output.length() + endItem.length()
-                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
-
-                def scoringPercentage = 1 - result.failedTestCount
-                if (scoringPercentage < 0) {
-                    scoringPercentage = 0.0;
-                }
-
-                scoringPercentage = scoringPercentage / 1
-                def scoringPercentageAsString = String.format("%.2f", scoringPercentage)
-                println("Exit Result for Scoring: " + scoringPercentageAsString)
-            }
+            printResults(desc, result, 1)
         }
     }
 }
@@ -425,21 +370,7 @@ task PreparednessTaskFourTests(type: Test) {
         info.exceptionFormat = debug.exceptionFormat
 
         afterSuite { desc, result ->
-            if (!desc.parent) { // will match the outermost suite
-                def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
-                def startItem = '|  ', endItem = '  |'
-                def repeatLength = startItem.length() + output.length() + endItem.length()
-                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
-
-                def scoringPercentage = 23 - result.failedTestCount
-                if (scoringPercentage < 0) {
-                    scoringPercentage = 0.0;
-                }
-
-                scoringPercentage = scoringPercentage / 23
-                def scoringPercentageAsString = String.format("%.2f", scoringPercentage)
-                println("Exit Result for Scoring: " + scoringPercentageAsString)
-            }
+            printResults(desc, result, 23)
         }
     }
 }
@@ -479,21 +410,7 @@ task MasteryTaskOneTests(type: Test) {
         info.exceptionFormat = debug.exceptionFormat
 
         afterSuite { desc, result ->
-            if (!desc.parent) { // will match the outermost suite
-                def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
-                def startItem = '|  ', endItem = '  |'
-                def repeatLength = startItem.length() + output.length() + endItem.length()
-                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
-
-                def scoringPercentage = 1 - result.failedTestCount
-                if (scoringPercentage < 0) {
-                    scoringPercentage = 0.0;
-                }
-
-                scoringPercentage = scoringPercentage / 1
-                def scoringPercentageAsString = String.format("%.2f", scoringPercentage)
-                println("Exit Result for Scoring: " + scoringPercentageAsString)
-            }
+            printResults(desc, result, 1)
         }
     }
 }
@@ -533,21 +450,7 @@ task MasteryTaskTwoTests(type: Test) {
         info.exceptionFormat = debug.exceptionFormat
 
         afterSuite { desc, result ->
-            if (!desc.parent) { // will match the outermost suite
-                def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
-                def startItem = '|  ', endItem = '  |'
-                def repeatLength = startItem.length() + output.length() + endItem.length()
-                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
-
-                def scoringPercentage = 1 - result.failedTestCount
-                if (scoringPercentage < 0) {
-                    scoringPercentage = 0.0;
-                }
-
-                scoringPercentage = scoringPercentage / 1
-                def scoringPercentageAsString = String.format("%.2f", scoringPercentage)
-                println("Exit Result for Scoring: " + scoringPercentageAsString)
-            }
+            printResults(desc, result, 1)
         }
     }
 }
@@ -588,21 +491,7 @@ task MasteryTaskThreeTests(type: Test) {
         info.exceptionFormat = debug.exceptionFormat
 
         afterSuite { desc, result ->
-            if (!desc.parent) { // will match the outermost suite
-                def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
-                def startItem = '|  ', endItem = '  |'
-                def repeatLength = startItem.length() + output.length() + endItem.length()
-                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
-
-                def scoringPercentage = 4 - result.failedTestCount
-                if (scoringPercentage < 0) {
-                    scoringPercentage = 0.0;
-                }
-
-                scoringPercentage = scoringPercentage / 4
-                def scoringPercentageAsString = String.format("%.2f", scoringPercentage)
-                println("Exit Result for Scoring: " + scoringPercentageAsString)
-            }
+            printResults(desc, result, 4)
         }
     }
 }
@@ -642,21 +531,7 @@ task MasteryTaskFourTests(type: Test) {
         info.exceptionFormat = debug.exceptionFormat
 
         afterSuite { desc, result ->
-            if (!desc.parent) { // will match the outermost suite
-                def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
-                def startItem = '|  ', endItem = '  |'
-                def repeatLength = startItem.length() + output.length() + endItem.length()
-                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
-
-                def scoringPercentage = 5 - result.failedTestCount
-                if (scoringPercentage < 0) {
-                    scoringPercentage = 0.0;
-                }
-
-                scoringPercentage = scoringPercentage / 5
-                def scoringPercentageAsString = String.format("%.2f", scoringPercentage)
-                println("Exit Result for Scoring: " + scoringPercentageAsString)
-            }
+            printResults(desc, result, 5)
         }
     }
 }
@@ -696,21 +571,7 @@ task MasteryTaskFiveTests(type: Test) {
         info.exceptionFormat = debug.exceptionFormat
 
         afterSuite { desc, result ->
-            if (!desc.parent) { // will match the outermost suite
-                def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
-                def startItem = '|  ', endItem = '  |'
-                def repeatLength = startItem.length() + output.length() + endItem.length()
-                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
-
-                def scoringPercentage = 10 - result.failedTestCount
-                if (scoringPercentage < 0) {
-                    scoringPercentage = 0.0;
-                }
-
-                scoringPercentage = scoringPercentage / 10
-                def scoringPercentageAsString = String.format("%.2f", scoringPercentage)
-                println("Exit Result for Scoring: " + scoringPercentageAsString)
-            }
+            printResults(desc, result, 10)
         }
     }
 }
@@ -750,21 +611,7 @@ task testSprint1(type: Test) {
         info.exceptionFormat = debug.exceptionFormat
 
         afterSuite { desc, result ->
-            if (!desc.parent) { // will match the outermost suite
-                def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
-                def startItem = '|  ', endItem = '  |'
-                def repeatLength = startItem.length() + output.length() + endItem.length()
-                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
-
-                def scoringPercentage = 31 - result.failedTestCount
-                if (scoringPercentage < 0) {
-                    scoringPercentage = 0.0;
-                }
-
-                scoringPercentage = scoringPercentage / 31
-                def scoringPercentageAsString = String.format("%.2f", scoringPercentage)
-                println("Exit Result for Scoring: " + scoringPercentageAsString)
-            }
+            printResults(desc, result, 31)
         }
     }
 }
@@ -804,21 +651,7 @@ task testSprint2(type: Test) {
         info.exceptionFormat = debug.exceptionFormat
 
         afterSuite { desc, result ->
-            if (!desc.parent) { // will match the outermost suite
-                def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
-                def startItem = '|  ', endItem = '  |'
-                def repeatLength = startItem.length() + output.length() + endItem.length()
-                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
-
-                def scoringPercentage = 5 - result.failedTestCount
-                if (scoringPercentage < 0) {
-                    scoringPercentage = 0.0;
-                }
-
-                scoringPercentage = scoringPercentage / 5
-                def scoringPercentageAsString = String.format("%.2f", scoringPercentage)
-                println("Exit Result for Scoring: " + scoringPercentageAsString)
-            }
+            printResults(desc, result, 5)
         }
     }
 }
@@ -858,21 +691,7 @@ task testSprint3(type: Test) {
         info.exceptionFormat = debug.exceptionFormat
 
         afterSuite { desc, result ->
-            if (!desc.parent) { // will match the outermost suite
-                def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
-                def startItem = '|  ', endItem = '  |'
-                def repeatLength = startItem.length() + output.length() + endItem.length()
-                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
-
-                def scoringPercentage = 10 - result.failedTestCount
-                if (scoringPercentage < 0) {
-                    scoringPercentage = 0.0;
-                }
-
-                scoringPercentage = scoringPercentage / 10
-                def scoringPercentageAsString = String.format("%.2f", scoringPercentage)
-                println("Exit Result for Scoring: " + scoringPercentageAsString)
-            }
+            printResults(desc, result, 10)
         }
     }
 }
