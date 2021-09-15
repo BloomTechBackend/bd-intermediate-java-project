@@ -20,12 +20,13 @@ Milestone 2: Fortify
 Encapsulate the `Order` class.
 
 Each test should be run separately using the following commands - one command per test:
-
+```
 ./gradlew -q clean :test --tests "com.amazon.ata.deliveringonourpromise.types.\*"
 
 ./gradlew -q clean IRT
 
 ./gradlew -q clean MasteryTaskThreeTests
+```
 
 Exit Checklist
 --------------
