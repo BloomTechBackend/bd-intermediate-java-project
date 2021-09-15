@@ -1,4 +1,4 @@
-# Sprint Challenge: Unit 2 Sprint 1
+# Sprint Challenge: Unit 2
 
 **_Read these instructions carefully. Understand exactly what is expected before starting this Sprint Challenge_**
 
