@@ -10,7 +10,7 @@ The Missed Promise CLI accepts an order ID from the CS representative and return
 
 **One of your tasks will be to update the Missed Promise CLI so that it gets the Order Promise at the time of shipping from OrderFulfillmentService.**
 
-![ProjectArchitecture.png](https://lambdaschool.instructure.com/courses/1097/files/342074/preview)
+![ProjectArchitecture.png](https://github.com/LambdaSchool/ebd-unit2-sprint1-challenge-DeliveringOnOurPromises/blob/main/Instructions/PreparednessTasks/ProjectArchitecture.png)
 
 (This document will use these abbreviations going forward)
 
@@ -49,7 +49,7 @@ The main method starts the `Shell` class, which interacts directly with the user
 
 You will be modifying this API to provide the interactive shell with the OrderPromiseHistory. This sequence diagram shows the current interaction between the relevant classes.
 
-![OverviewSD.png](https://lambdaschool.instructure.com/courses/1097/files/342073/preview)
+![OverviewSD.png](https://github.com/LambdaSchool/ebd-unit2-sprint1-challenge-DeliveringOnOurPromises/blob/main/Instructions/PreparednessTasks/OverviewSD.png)
 
 The “front end” requests data from the “back end” and reformats it to be useful to a CS rep. While you may find some of the front end code educational, most of your tasks will involve understanding and enhancing the back end code.
 
