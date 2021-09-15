@@ -60,7 +60,7 @@ We recommend using the [PlantUML plugin for IntelliJ](https://plugins.jetbrains.
 
 Your job is to create a PlantUML source text for the DeliveringOnOurPromises Application. When you're done, save the PlantUML source text in your package as `src/resources/deliveringonourpromise_CD.puml`.
 
-![OverviewSD.png](https://lambdaschool.instructure.com/courses/1097/files/342073/preview)
+![OverviewSD.png](https://github.com/LambdaSchool/ebd-unit2-sprint1-challenge-DeliveringOnOurPromises/blob/main/Instructions/PreparednessTasks/OverviewSD.png)
 
 You should test your code
 
