@@ -33,7 +33,7 @@ public class MasteryTaskFourTests {
     @Test
     public void masteryTaskFour_masteryTaskFourFile_existsAndItIsNotEmpty() {
         // GIVEN
-        String masteryTaskFourFileName = "resources/mastery-task4.txt";
+        String masteryTaskFourFileName = "mastery-task4.txt";
 
         // WHEN
         String content = AtaTestHelper.getFileContentFromResources(masteryTaskFourFileName);
