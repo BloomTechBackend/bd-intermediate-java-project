@@ -51,6 +51,16 @@ jacocoTestCoverageVerification {
     violationRules {
         rule {
             limit {
+                minimum = 0.90
+            }
+        }
+        rule {
+            includes = [
+                    'com.amazon.ata.deliveringonourpromise.activity.GetPromiseHistoryByOrderIdActivity',
+                    'com.amazon.ata.deliveringonourpromise.dao.OrderDao',
+                    'com.amazon.ata.deliveringonourpromise.dao.PromiseDao'
+            ]
+            limit {
                 minimum = 1.00
             }
         }
