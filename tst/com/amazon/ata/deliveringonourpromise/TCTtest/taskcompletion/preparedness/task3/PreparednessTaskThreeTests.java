@@ -10,7 +10,7 @@ public class PreparednessTaskThreeTests {
     @Test
     public void preparednessTaskThree_preparednessTaskThreeFile_existsAndItIsNotEmpty() {
         // GIVEN
-        String taskThreeFileName = "resources/preparedness-task3.txt";
+        String taskThreeFileName = "preparedness-task3.txt";
 
         // WHEN
         String content = AtaTestHelper.getFileContentFromResources(taskThreeFileName);
