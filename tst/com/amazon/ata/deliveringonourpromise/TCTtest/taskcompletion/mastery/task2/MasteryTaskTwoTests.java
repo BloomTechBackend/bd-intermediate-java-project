@@ -16,7 +16,7 @@ public class MasteryTaskTwoTests {
     @Test
     public void masteryTaskTwo_masteryTaskTwoFile_existsAndIncludesMultipleTests() {
         // GIVEN
-        String masteryTaskTwoFileName = "resources/OrderDaoTestPlan.md";
+        String masteryTaskTwoFileName = "OrderDaoTestPlan.md";
 
         // WHEN
         String content = AtaTestHelper.getFileContentFromResources(masteryTaskTwoFileName);
