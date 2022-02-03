@@ -14,7 +14,7 @@ import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
 public class PreparednessTaskFourTests {
-    private static final String DIAGRAM_FILENAME = "resources/deliveringonourpromise_CD.puml";
+    private static final String DIAGRAM_FILENAME = "deliveringonourpromise_CD.puml";
 
     @Test(dataProvider = "requiredClasses")
     public void preparednessTaskFour_deliveringOnOurPromiseClassDiagram_containsRequiredClasses(String classPattern) {
