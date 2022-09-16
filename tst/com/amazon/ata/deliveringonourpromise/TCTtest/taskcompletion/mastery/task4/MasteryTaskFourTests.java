@@ -31,18 +31,6 @@ public class MasteryTaskFourTests {
     }
 
     @Test
-    public void masteryTaskFour_masteryTaskFourFile_existsAndItIsNotEmpty() {
-        // GIVEN
-        String masteryTaskFourFileName = "mastery-task4.txt";
-
-        // WHEN
-        String content = AtaTestHelper.getFileContentFromResources(masteryTaskFourFileName);
-
-        // THEN
-        assertFalse(content.isEmpty());
-    }
-
-    @Test
     public void masteryTaskFour_ofsClientClass_existsAndHasASingleMethod() {
         // GIVEN
         Class<?> ofsClientClass =
